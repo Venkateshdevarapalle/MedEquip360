@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function Inventory() {
   const [equipment, setEquipment] = useState([]);
@@ -13,7 +14,7 @@ function Inventory() {
 
   const fetchEquipment = () => {
     axios
-      .get("http://localhost:5000/api/equipment")
+      .get(`${API_URL}/api/equipment`)
       .then((response) => {
         setEquipment(response.data);
       })
@@ -39,14 +40,14 @@ function Inventory() {
     try {
       if (editId) {
   await axios.put(
-    `http://localhost:5000/api/equipment/${editId}`,
+    `${API_URL}/api/equipment/${editId}`,
     formData
   );
 
   setEditId(null);
 } else {
   await axios.post(
-    "http://localhost:5000/api/equipment",
+    `${API_URL}/api/equipment`,
     formData
   );
 }
@@ -77,7 +78,7 @@ const handleEdit = (item) => {
   const handleDelete = async (id) => {
   try {
     await axios.delete(
-      `http://localhost:5000/api/equipment/${id}`
+      `${API_URL}/api/equipment/${id}`
     );
 
     fetchEquipment();

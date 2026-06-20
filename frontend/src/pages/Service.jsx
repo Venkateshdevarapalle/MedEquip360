@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function Service() {
   const [tickets, setTickets] = useState([]);
@@ -11,7 +12,7 @@ function Service() {
 
   const fetchTickets = () => {
     axios
-      .get("http://localhost:5000/api/service")
+      .get(`${API_URL}/api/service`)
       .then((response) => {
         setTickets(response.data);
       })
@@ -36,7 +37,7 @@ function Service() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/service",
+        `${API_URL}/api/service`,
         formData
       );
 
@@ -54,7 +55,7 @@ function Service() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/service/${id}`
+        `${API_URL}/api/Service/${id}`
       );
 
       fetchTickets();
@@ -66,7 +67,7 @@ function Service() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/service/${id}`,
+        `${API_URL}/api/Service/${id}`,
         { status }
       );
 

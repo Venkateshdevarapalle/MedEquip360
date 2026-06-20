@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
@@ -11,7 +12,7 @@ function Orders() {
 
   const fetchOrders = () => {
     axios
-      .get("http://localhost:5000/api/orders")
+      .get(`${API_URL}/api/orders`)
       .then((response) => {
         setOrders(response.data);
       })
@@ -36,7 +37,7 @@ function Orders() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/orders",
+        `${API_URL}/api/orders`,
         formData
       );
 
@@ -54,7 +55,7 @@ function Orders() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/orders/${id}`
+        `${API_URL}/api/orders/${id}`
       );
 
       fetchOrders();
@@ -66,7 +67,7 @@ function Orders() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/${id}`,
+        `${API_URL}/api/orders/${id}`,
         { status }
       );
 

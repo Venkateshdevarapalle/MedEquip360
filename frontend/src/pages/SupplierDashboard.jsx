@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function SupplierDashboard() {
   const [totalEquipment, setTotalEquipment] = useState(0);
@@ -13,19 +14,19 @@ function SupplierDashboard() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/equipment/stats/count")
+      .get(`${API_URL}/api/equipment/stats/count`)
       .then((res) => {
         setTotalEquipment(res.data.totalEquipment);
       });
 
     axios
-      .get("http://localhost:5000/api/equipment")
+      .get(`${API_URL}/api/equipment`)
       .then((res) => {
         setEquipment(res.data);
       });
 
     axios
-      .get("http://localhost:5000/api/orders/stats")
+      .get(`${API_URL}/api/orders/stats`)
       .then((res) => {
         setOrderStats(res.data);
       });

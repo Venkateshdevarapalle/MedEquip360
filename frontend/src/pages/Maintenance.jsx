@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function Maintenance() {
   const [maintenance, setMaintenance] = useState([]);
@@ -11,7 +12,7 @@ function Maintenance() {
 
   const fetchMaintenance = () => {
     axios
-      .get("http://localhost:5000/api/maintenance")
+      .get(`${API_URL}/api/maintenance`)
       .then((response) => {
         setMaintenance(response.data);
       })
@@ -36,7 +37,7 @@ function Maintenance() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/maintenance",
+        `${API_URL}/api/maintenance`,
         formData
       );
 
@@ -54,7 +55,7 @@ function Maintenance() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/maintenance/${id}`
+        `${API_URL}/api/maintenance/${id}`
       );
 
       fetchMaintenance();

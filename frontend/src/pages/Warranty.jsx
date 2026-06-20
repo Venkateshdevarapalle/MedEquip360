@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../config";
 
 function Warranty() {
   const [warranties, setWarranties] = useState([]);
@@ -12,7 +13,7 @@ function Warranty() {
 
   const fetchWarranty = () => {
     axios
-      .get("http://localhost:5000/api/warranty")
+      .get(`${API_URL}/api/warranty`)
       .then((response) => {
         setWarranties(response.data);
       });
@@ -33,7 +34,7 @@ function Warranty() {
     e.preventDefault();
 
     await axios.post(
-      "http://localhost:5000/api/warranty",
+      `${API_URL}/api/warranty`,
       formData
     );
 
@@ -48,7 +49,7 @@ function Warranty() {
 
   const handleDelete = async (id) => {
     await axios.delete(
-      `http://localhost:5000/api/warranty/${id}`
+      `${API_URL}/api/warranty/${id}`
     );
 
     fetchWarranty();
