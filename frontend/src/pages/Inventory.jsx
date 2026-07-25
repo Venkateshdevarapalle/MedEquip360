@@ -1,36 +1,63 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import API_URL from "../config";
+import React, { useEffect, useState } from "react";
+import {
+  getEquipment,
+  addEquipment,
+  updateEquipment,
+  deleteEquipment,
+} from "../api/api";
 
-function Inventory() {
+const Inventory = () => {
   const [equipment, setEquipment] = useState([]);
-  const [editId, setEditId] = useState(null);
+
   const [formData, setFormData] = useState({
-    name: "",
+    equipment_name: "",
     category: "",
     manufacturer: "",
-    quantity: ""
+    model_number: "",
+    serial_number: "",
+    quantity: "",
+    unit_price: "",
+    supplier_id: "",
+    purchase_date: "",
+    status: "Available",
   });
 
-  const fetchEquipment = () => {
-    axios
-      .get(`${API_URL}/api/equipment`)
-      .then((response) => {
-        setEquipment(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchEquipment();
   }, []);
 
+  const fetchEquipment = async () => {
+    try {
+      const res = await getEquipment();
+      setEquipment(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const clearForm = () => {
+    setEditingId(null);
+
+    setFormData({
+      equipment_name: "",
+      category: "",
+      manufacturer: "",
+      model_number: "",
+      serial_number: "",
+      quantity: "",
+      unit_price: "",
+      supplier_id: "",
+      purchase_date: "",
+      status: "Available",
     });
   };
 
@@ -38,73 +65,62 @@ function Inventory() {
     e.preventDefault();
 
     try {
-      if (editId) {
-  await axios.put(
-    `${API_URL}/api/equipment/${editId}`,
-    formData
-  );
+      if (editingId) {
+        await updateEquipment(editingId, formData);
+      } else {
+        await addEquipment(formData);
+      }
 
-  setEditId(null);
-} else {
-  await axios.post(
-    `${API_URL}/api/equipment`,
-    formData
-  );
-}
-
-      setFormData({
-        name: "",
-        category: "",
-        manufacturer: "",
-        quantity: ""
-      });
-
-setEditId(null);
       fetchEquipment();
-    } catch (error) {
-      console.error(error);
+      clearForm();
+    } catch (err) {
+      console.error(err);
     }
   };
-const handleEdit = (item) => {
-  setEditId(item.id);
 
-  setFormData({
-    name: item.name,
-    category: item.category,
-    manufacturer: item.manufacturer,
-    quantity: item.quantity
-  });
-};
+  const handleEdit = (item) => {
+    setEditingId(item.equipment_id);
+
+    setFormData({
+      equipment_name: item.equipment_name,
+      category: item.category,
+      manufacturer: item.manufacturer,
+      model_number: item.model_number,
+      serial_number: item.serial_number,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      supplier_id: item.supplier_id,
+      purchase_date: item.purchase_date
+        ? item.purchase_date.substring(0, 10)
+        : "",
+      status: item.status,
+    });
+  };
+
   const handleDelete = async (id) => {
-  try {
-    await axios.delete(
-      `${API_URL}/api/equipment/${id}`
-    );
+    if (!window.confirm("Delete this equipment?")) return;
 
-    fetchEquipment();
-  } catch (error) {
-    console.error(error);
-  }
-}; 
+    try {
+      await deleteEquipment(id);
+      fetchEquipment();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
-  <div className="p-8">
-    <h1 className="text-4xl font-bold mb-8">
-      Equipment Inventory
-    </h1>
+    <div className="container mt-4">
+      <h2>Equipment Inventory</h2>
 
-    <div className="bg-white p-6 rounded-xl shadow-md mb-8">
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-4 gap-4"
-      >
+      <form onSubmit={handleSubmit} className="mb-4">
+
         <input
           type="text"
-          name="name"
+          name="equipment_name"
           placeholder="Equipment Name"
-          value={formData.name}
+          value={formData.equipment_name}
           onChange={handleChange}
-          className="border p-3 rounded-lg"
+          required
         />
 
         <input
@@ -113,7 +129,7 @@ const handleEdit = (item) => {
           placeholder="Category"
           value={formData.category}
           onChange={handleChange}
-          className="border p-3 rounded-lg"
+          required
         />
 
         <input
@@ -122,7 +138,22 @@ const handleEdit = (item) => {
           placeholder="Manufacturer"
           value={formData.manufacturer}
           onChange={handleChange}
-          className="border p-3 rounded-lg"
+        />
+
+        <input
+          type="text"
+          name="model_number"
+          placeholder="Model Number"
+          value={formData.model_number}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="serial_number"
+          placeholder="Serial Number"
+          value={formData.serial_number}
+          onChange={handleChange}
         />
 
         <input
@@ -131,70 +162,98 @@ const handleEdit = (item) => {
           placeholder="Quantity"
           value={formData.quantity}
           onChange={handleChange}
-          className="border p-3 rounded-lg"
         />
 
-        <button
-          type="submit"
-          className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition"
-        >
-          {editId
-            ? "Update Equipment"
-            : "Add Equipment"}
-        </button>
-      </form>
-    </div>
+        <input
+          type="number"
+          name="unit_price"
+          placeholder="Unit Price"
+          value={formData.unit_price}
+          onChange={handleChange}
+        />
 
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-slate-800 text-white">
+        <input
+          type="number"
+          name="supplier_id"
+          placeholder="Supplier ID"
+          value={formData.supplier_id}
+          onChange={handleChange}
+        />
+
+        <input
+          type="date"
+          name="purchase_date"
+          value={formData.purchase_date}
+          onChange={handleChange}
+        />
+
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+        >
+          <option>Available</option>
+          <option>In Use</option>
+          <option>Under Maintenance</option>
+          <option>Out of Stock</option>
+        </select>
+
+        <button type="submit">
+          {editingId ? "Update Equipment" : "Add Equipment"}
+        </button>
+
+        <button
+          type="button"
+          onClick={clearForm}
+        >
+          Clear
+        </button>
+
+      </form>
+
+      <table border="1" cellPadding="10" width="100%">
+        <thead>
           <tr>
-            <th className="p-4 text-left">ID</th>
-            <th className="p-4 text-left">Name</th>
-            <th className="p-4 text-left">Category</th>
-            <th className="p-4 text-left">Manufacturer</th>
-            <th className="p-4 text-left">Quantity</th>
-            <th className="p-4 text-left">Action</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Manufacturer</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
           {equipment.map((item) => (
-            <tr
-              key={item.id}
-              className="border-b hover:bg-gray-50"
-            >
-              <td className="p-4">{item.id}</td>
-              <td className="p-4">{item.name}</td>
-              <td className="p-4">{item.category}</td>
-              <td className="p-4">{item.manufacturer}</td>
-              <td className="p-4">{item.quantity}</td>
+            <tr key={item.equipment_id}>
+              <td>{item.equipment_id}</td>
+              <td>{item.equipment_name}</td>
+              <td>{item.category}</td>
+              <td>{item.manufacturer}</td>
+              <td>{item.quantity}</td>
+              <td>{item.status}</td>
 
-              <td className="p-4 flex gap-2">
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                >
+              <td>
+                <button onClick={() => handleEdit(item)}>
                   Edit
                 </button>
 
                 <button
                   onClick={() =>
-                    handleDelete(item.id)
+                    handleDelete(item.equipment_id)
                   }
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg"
                 >
                   Delete
                 </button>
               </td>
             </tr>
-
           ))}
         </tbody>
+
       </table>
     </div>
-  </div>
-);
-}
+  );
+};
 
 export default Inventory;
